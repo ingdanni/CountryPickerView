@@ -149,21 +149,22 @@ open class CountrySelectView: UIView {
         self.superview!.addConstraint(NSLayoutConstraint(item: self, attribute: .centerX, relatedBy:.equal, toItem:self.superview!, attribute: .centerX, multiplier:1.0, constant:0))
         self.superview!.addConstraint(NSLayoutConstraint(item: self, attribute: .centerY, relatedBy:.equal, toItem:self.superview!, attribute: .centerY, multiplier:1.0, constant:0))
         
-      self.addConstraint(NSLayoutConstraint(item: countryTableView, attribute: .top, relatedBy:.equal, toItem:self, attribute: .top, multiplier:1.0, constant: 40))
-      
-      self.addConstraint(NSLayoutConstraint(item: countryTableView, attribute: .bottom, relatedBy:.equal, toItem:self, attribute: .bottom, multiplier:1.0, constant: 20))
-      
-      self.addConstraint(NSLayoutConstraint(item: countryTableView, attribute: .leading, relatedBy:.equal, toItem:self, attribute: .leading, multiplier:1.0, constant: 20))
-      
-      self.addConstraint(NSLayoutConstraint(item: countryTableView, attribute: .trailing, relatedBy:.equal, toItem:self, attribute: .trailing, multiplier:1.0, constant: -20))
-      
-//      self.addConstraint(NSLayoutConstraint(item: countryTableView, attribute: .width, relatedBy:.equal, toItem:self, attribute: .width, multiplier:1.0, constant: 0))
+//      self.addConstraint(NSLayoutConstraint(item: countryTableView, attribute: .top, relatedBy:.equal, toItem:self, attribute: .top, multiplier:1.0, constant: 40))
 //
-//      self.addConstraint(NSLayoutConstraint(item: countryTableView, attribute: .height, relatedBy:.equal, toItem:self, attribute: .height, multiplier:1.0, constant: 0))
-      
-//        self.addConstraint(NSLayoutConstraint(item: countryTableView, attribute: .centerX, relatedBy:.equal, toItem:self, attribute:.centerX, multiplier:1.0, constant: 0))
+//      self.addConstraint(NSLayoutConstraint(item: countryTableView, attribute: .bottom, relatedBy:.equal, toItem:self, attribute: .bottom, multiplier:1.0, constant: 20))
 //
-//        self.addConstraint(NSLayoutConstraint(item: countryTableView, attribute: .centerY, relatedBy:.equal, toItem:self, attribute:.centerY, multiplier:1.0, constant: 0))
+//      self.addConstraint(NSLayoutConstraint(item: countryTableView, attribute: .leading, relatedBy:.equal, toItem:self, attribute: .leading, multiplier:1.0, constant: 20))
+//
+//      self.addConstraint(NSLayoutConstraint(item: countryTableView, attribute: .trailing, relatedBy:.equal, toItem:self, attribute: .trailing, multiplier:1.0, constant: -20))
+      
+      
+      self.addConstraint(NSLayoutConstraint(item: countryTableView, attribute: .width, relatedBy:.equal, toItem:self, attribute: .width, multiplier:1.0, constant: 0))
+
+      self.addConstraint(NSLayoutConstraint(item: countryTableView, attribute: .height, relatedBy:.equal, toItem:self, attribute: .height, multiplier:1.0, constant: 0))
+      
+        self.addConstraint(NSLayoutConstraint(item: countryTableView, attribute: .centerX, relatedBy:.equal, toItem:self, attribute:.centerX, multiplier:1.0, constant: 0))
+
+        self.addConstraint(NSLayoutConstraint(item: countryTableView, attribute: .centerY, relatedBy:.equal, toItem:self, attribute:.centerY, multiplier:1.0, constant: 0))
         
         
     }
