@@ -16,6 +16,16 @@ public enum DisplayLanguageType {
 
 open class CountrySelectView: UIView {
   
+    lazy var listOfCountries = {
+      return CountryCodeJson.filter { item in
+        let path = Bundle(for: CountrySelectView.self).resourcePath! + "/CountryPicker.bundle"
+        let CABundle = Bundle(path: path)!
+        let img = "\(item["locale"] as! String)"
+        let image = UIImage(named: img.lowercased(), in: CABundle, compatibleWith: nil)
+        return image != nil
+      }
+    }()
+  
     public static let shared = CountrySelectView()
     public var selectedCountryCallBack : ((_ countryDic: [String:Any])->(Void))!
   
@@ -110,7 +120,7 @@ open class CountrySelectView: UIView {
     
     convenience init() {
         self.init(frame: CGRect(x:0,y:0,width:UIScreen.main.bounds.size.width,height:UIScreen.main.bounds.size.height))
-        searchCountrys = CountryCodeJson
+        searchCountrys = listOfCountries
         let tap = UITapGestureRecognizer()
         tap.addTarget(self, action: #selector(self.dismiss))
         tap.delegate = self
@@ -136,7 +146,6 @@ open class CountrySelectView: UIView {
         countryTableView.showsVerticalScrollIndicator = false
         countryTableView.layer.masksToBounds = true
         countryTableView.layer.cornerRadius = 5.0
-        
     }
   
     func setLayout() {
@@ -148,15 +157,6 @@ open class CountrySelectView: UIView {
         self.superview!.addConstraint(NSLayoutConstraint(item: self, attribute: .height, relatedBy:.equal, toItem:self.superview!, attribute: .height, multiplier:1.0, constant:0.0))
         self.superview!.addConstraint(NSLayoutConstraint(item: self, attribute: .centerX, relatedBy:.equal, toItem:self.superview!, attribute: .centerX, multiplier:1.0, constant:0))
         self.superview!.addConstraint(NSLayoutConstraint(item: self, attribute: .centerY, relatedBy:.equal, toItem:self.superview!, attribute: .centerY, multiplier:1.0, constant:0))
-        
-//      self.addConstraint(NSLayoutConstraint(item: countryTableView, attribute: .top, relatedBy:.equal, toItem:self, attribute: .top, multiplier:1.0, constant: 40))
-//
-//      self.addConstraint(NSLayoutConstraint(item: countryTableView, attribute: .bottom, relatedBy:.equal, toItem:self, attribute: .bottom, multiplier:1.0, constant: 20))
-//
-//      self.addConstraint(NSLayoutConstraint(item: countryTableView, attribute: .leading, relatedBy:.equal, toItem:self, attribute: .leading, multiplier:1.0, constant: 20))
-//
-//      self.addConstraint(NSLayoutConstraint(item: countryTableView, attribute: .trailing, relatedBy:.equal, toItem:self, attribute: .trailing, multiplier:1.0, constant: -20))
-      
       
       self.addConstraint(NSLayoutConstraint(item: countryTableView, attribute: .width, relatedBy:.equal, toItem:self, attribute: .width, multiplier:1.0, constant: 0))
 
@@ -165,8 +165,6 @@ open class CountrySelectView: UIView {
         self.addConstraint(NSLayoutConstraint(item: countryTableView, attribute: .centerX, relatedBy:.equal, toItem:self, attribute:.centerX, multiplier:1.0, constant: 0))
 
         self.addConstraint(NSLayoutConstraint(item: countryTableView, attribute: .centerY, relatedBy:.equal, toItem:self, attribute:.centerY, multiplier:1.0, constant: 0))
-        
-        
     }
   
     public func show() {
@@ -176,7 +174,7 @@ open class CountrySelectView: UIView {
         }
       
         searchBarView.text = ""
-        searchCountrys = CountryCodeJson
+        searchCountrys = listOfCountries
         self.countryTableView.reloadData()
         self.setLayout()
     }
@@ -197,14 +195,14 @@ private typealias searchBarDelegate = CountrySelectView
 extension searchBarDelegate : UISearchBarDelegate{
     public func searchBar(_ searchBar: UISearchBar, textDidChange searchText: String) {
         if searchText.count == 0 {
-            searchCountrys = CountryCodeJson
+            searchCountrys = listOfCountries
             countryTableView.reloadData()
             return
         }
         
         self.getRegexString(searchString: searchText.lowercased())
         var results :[[String:Any]] = []
-        for countryDic in CountryCodeJson {
+        for countryDic in listOfCountries {
             let zh = countryDic["zh"] as! String
             let en = countryDic["en"] as! String
             let es = countryDic["es"] as! String
@@ -227,7 +225,6 @@ extension searchBarDelegate : UISearchBarDelegate{
             }else{
                 str = "\(str)+[a-z0-9\\u4e00-\\u9fa5]*[\(searchString[i!])]"
             }
-//            print(searchString[i!])
         }
         regex = "\(str)+[a-z0-9\\u4e00-\\u9fa5]*$"
     }
@@ -251,9 +248,13 @@ extension tapGestureDelegate : UIGestureRecognizerDelegate{
 private typealias tableViewDelegate = CountrySelectView
 extension tableViewDelegate : UITableViewDelegate{
     public func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        var dic = searchCountrys[indexPath.row]
-        dic["countryImage"] = UIImage(named:"CountryPicker.bundle/\(searchCountrys[indexPath.row]["locale"] as! String)")
-        self.selectedCountryCallBack(dic)
+        var selected = searchCountrys[indexPath.row]
+      
+        let path = Bundle(for: CountrySelectView.self).resourcePath! + "/CountryPicker.bundle"
+        let CABundle = Bundle(path: path)!
+        let img = "\(selected["locale"] as! String)"
+        selected["countryImage"] = UIImage(named: img.lowercased(), in: CABundle, compatibleWith: nil)
+        self.selectedCountryCallBack(selected)
         self.dismiss()
     }
 }
@@ -265,45 +266,30 @@ extension tableViewDataSource : UITableViewDataSource{
     }
   
     public func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-//        let indentifier = "CountryTableViewCell"
-//
-//        var countryCell:CountryTableViewCell! = tableView.dequeueReusableCell(withIdentifier: indentifier) as? CountryTableViewCell
-//
-//        if countryCell == nil {
-//
-//            countryCell=CountryTableViewCell(style: .default, reuseIdentifier: indentifier)
-//        }
-//        if _displayLanguage == .english {
-//            countryCell.countryNameLabel.text = (searchCountrys[indexPath.row]["en"] as! String)
-//        }
-//        if _displayLanguage == .chinese {
-//            countryCell.countryNameLabel.text = (searchCountrys[indexPath.row]["zh"] as! String)
-//        }
-//        if _displayLanguage == .spanish {
-//            countryCell.countryNameLabel.text = (searchCountrys[indexPath.row]["es"] as! String)
-//        }
-//        countryCell.countryNameLabel.font = _countryNameFont
-//        countryCell.countryNameLabel.textColor = _countryNameColor
-//        let path = Bundle(for: CountrySelectView.self).resourcePath! + "/CountryPicker.bundle"
-//        let CABundle = Bundle(path: path)!
-//        countryCell.countryImageView.image = UIImage(named: "\(searchCountrys[indexPath.row]["locale"] as! String)", in:  CABundle, compatibleWith: nil)
-//
-//        countryCell.phoneCodeLabel.text = "+\(searchCountrys[indexPath.row]["code"] as! NSNumber)"
-//        countryCell.phoneCodeLabel.font = _countryPhoneCodeFont
-//        countryCell.phoneCodeLabel.textColor = _countryPhoneCodeColor
-//
-//        return countryCell
-      let cell = UITableViewCell(style: .value1, reuseIdentifier: nil)
+      let indentifier = "CountryTableViewCell"
+
+      var cell:CountryTableViewCell! = tableView.dequeueReusableCell(withIdentifier: indentifier) as? CountryTableViewCell
+
+      if cell == nil {
+          cell = CountryTableViewCell(style: .default, reuseIdentifier: indentifier)
+      }
+    
+      cell.countryNameLabel.text = (searchCountrys[indexPath.row]["es"] as! String)
+      cell.countryNameLabel.font = _countryNameFont
+      cell.countryNameLabel.textColor = UIColor(red: 0.93, green: 0.41, blue: 0.29, alpha: 1.0)
+    
+      cell.phoneCodeLabel.text = "+ \(searchCountrys[indexPath.row]["code"] as! NSNumber)"
+      cell.phoneCodeLabel.font = _countryPhoneCodeFont
+      cell.phoneCodeLabel.textColor = _countryPhoneCodeColor
       
-      cell.textLabel!.text = (searchCountrys[indexPath.row]["es"] as! String)
-      cell.textLabel?.textColor = UIColor(red:0.93, green:0.41, blue:0.29, alpha:1.0)
-      cell.textLabel?.font = UIFont.boldSystemFont(ofSize: 20)
+      let path = Bundle(for: CountrySelectView.self).resourcePath! + "/CountryPicker.bundle"
+      let CABundle = Bundle(path: path)!
+      let img = "\(searchCountrys[indexPath.row]["locale"] as! String)"
       
-      cell.detailTextLabel!.text = "+\(searchCountrys[indexPath.row]["code"] as! NSNumber)"
-      cell.detailTextLabel?.textColor = UIColor(red:0.64, green:0.64, blue:0.64, alpha:1.0)
-      cell.detailTextLabel?.font = UIFont.systemFont(ofSize: 16)
+      cell.countryImageView!.image = UIImage(named: img.lowercased(), in: CABundle, compatibleWith: nil)
+      cell.countryImageView.layer.cornerRadius = 5
       
-      cell.backgroundColor = UIColor(red:0.98, green:0.98, blue:0.97, alpha:1.0)
+      cell.backgroundColor = UIColor(red: 0.98, green: 0.98, blue: 0.97, alpha: 1.0)
       return cell
     }
   

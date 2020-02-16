@@ -5,6 +5,8 @@
 //  Created by 朱慧平 on 2018/1/30.
 //  Copyright © 2018年 terncommerce. All rights reserved.
 //
+import Foundation
+import UIKit
 
 let CountryCodeJson =  [
     [

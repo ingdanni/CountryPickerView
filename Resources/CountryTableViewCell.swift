@@ -18,16 +18,7 @@ class CountryTableViewCell: UITableViewCell {
 
     }
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
-        
         super.init(style: style, reuseIdentifier: reuseIdentifier)
-//        let line = UIView()
-//        line.backgroundColor = UIColor.init(white: 0.0, alpha: 0.3)
-//        self.contentView.addSubview(line)
-//        line.translatesAutoresizingMaskIntoConstraints = false
-//        line.addConstraint(NSLayoutConstraint(item: line, attribute: .height, relatedBy: .equal, toItem: nil, attribute:.notAnAttribute, multiplier: 1.0, constant: 1.0))
-//        self.contentView.addConstraint(NSLayoutConstraint(item: line, attribute: .width, relatedBy: .equal, toItem: self.contentView, attribute:.width, multiplier: 1.0, constant: 0.0))
-//        self.contentView.addConstraint(NSLayoutConstraint(item:line,attribute:.left, relatedBy:.equal, toItem:self.contentView, attribute:.left, multiplier:1.0, constant: 0.0))
-//        self.contentView.addConstraint(NSLayoutConstraint(item:line,attribute:.bottom, relatedBy:.equal, toItem:self.contentView, attribute:.bottom, multiplier:1.0, constant: 0.0))
       
         countryImageView = UIImageView()
         self.contentView.addSubview(countryImageView)
@@ -66,11 +57,8 @@ class CountryTableViewCell: UITableViewCell {
         fatalError("init(coder:) has not been implemented")
     }
     
-    
     override func setSelected(_ selected: Bool, animated: Bool) {
         super.setSelected(selected, animated: animated)
-        
-        // Configure the view for the selected state
     }
     
 }
