@@ -33,7 +33,7 @@ class CountryTableViewCell: UITableViewCell {
       
         phoneCodeLabel = UILabel()
         phoneCodeLabel.textAlignment = .right
-        phoneCodeLabel.font = UIFont.systemFont(ofSize: 14)
+        phoneCodeLabel.font = UIFont.systemFont(ofSize: 16)
         phoneCodeLabel.textColor = .gray
         self.contentView.addSubview(phoneCodeLabel)
         phoneCodeLabel.translatesAutoresizingMaskIntoConstraints = false
@@ -44,7 +44,7 @@ class CountryTableViewCell: UITableViewCell {
         
         countryNameLabel = UILabel()
         countryNameLabel.textAlignment = .left
-        countryNameLabel.font = UIFont.systemFont(ofSize: 16)
+        countryNameLabel.font = UIFont.systemFont(ofSize: 18)
         self.contentView.addSubview(countryNameLabel)
         countryNameLabel.translatesAutoresizingMaskIntoConstraints = false
         countryNameLabel.addConstraint(NSLayoutConstraint(item: countryNameLabel!, attribute: .height, relatedBy: .equal, toItem: nil, attribute:.notAnAttribute, multiplier: 1.0, constant: 30))

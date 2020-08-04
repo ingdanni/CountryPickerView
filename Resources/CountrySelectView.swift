@@ -276,7 +276,7 @@ extension tableViewDataSource : UITableViewDataSource{
     
       cell.countryNameLabel.text = (searchCountrys[indexPath.row]["es"] as! String)
       cell.countryNameLabel.font = _countryNameFont
-      cell.countryNameLabel.textColor = UIColor(red: 0.93, green: 0.41, blue: 0.29, alpha: 1.0)
+//      cell.countryNameLabel.textColor = UIColor(red: 0.93, green: 0.41, blue: 0.29, alpha: 1.0)
     
       cell.phoneCodeLabel.text = "+ \(searchCountrys[indexPath.row]["code"] as! NSNumber)"
       cell.phoneCodeLabel.font = _countryPhoneCodeFont
@@ -288,8 +288,8 @@ extension tableViewDataSource : UITableViewDataSource{
       
       cell.countryImageView!.image = UIImage(named: img.lowercased(), in: CABundle, compatibleWith: nil)
       cell.countryImageView.layer.cornerRadius = 5
-      
-      cell.backgroundColor = UIColor(red: 0.98, green: 0.98, blue: 0.97, alpha: 1.0)
+//      cell.backgroundColor = UIColor(red: 0.98, green: 0.98, blue: 0.97, alpha: 1.0)
+		
       return cell
     }
   
