@@ -146,7 +146,7 @@ open class CountrySelectView: UIView {
 			[1, 86, 505, 506, 504].contains($0.code)
 		}
 		
-        searchCountries = listOfCountries
+		searchCountries = listOfCountries.filter { $0.image != nil }
 		
         let tap = UITapGestureRecognizer()
         tap.addTarget(self, action: #selector(self.dismiss))
@@ -201,7 +201,7 @@ open class CountrySelectView: UIView {
         }
       
         searchBarView.text = ""
-        searchCountries = listOfCountries
+		searchCountries = listOfCountries.filter { $0.image != nil }
         self.countryTableView.reloadData()
         self.setLayout()
     }
@@ -224,7 +224,7 @@ extension searchBarDelegate : UISearchBarDelegate {
 	
     public func searchBar(_ searchBar: UISearchBar, textDidChange searchText: String) {
         if searchText.count == 0 {
-            searchCountries = listOfCountries
+			searchCountries = listOfCountries.filter { $0.image != nil }
             countryTableView.reloadData()
             return
         }
