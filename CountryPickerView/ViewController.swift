@@ -25,9 +25,9 @@ class ViewController: UIViewController {
         countryView.barTintColor = .black
         countryView.displayLanguage = .spanish
         countryView.show()
-        countryView.selectedCountryCallBack = { (code, name, image) -> Void in
+        countryView.selectedCountryCallBack = { (code, name) -> Void in
             self.countryNameLabel.text = name
-            self.countryImageView.image = image
+//            self.countryImageView.image = image
 			self.countryCodeLabel.text = code
         }
     }

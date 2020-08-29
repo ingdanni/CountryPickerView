@@ -8,7 +8,7 @@
 import Foundation
 import UIKit
 
-let CountryCodeJson =  [
+let countryCodeJson =  [
     [
         "en": "Angola",
         "es": "Angola",

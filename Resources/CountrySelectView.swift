@@ -20,7 +20,6 @@ struct CountryItem {
 	var zh: String
 	var locale: String
 	var code: Int
-	var image: UIImage?
 	
 	var codeString: String {
 		"+ \(code)"
@@ -30,25 +29,19 @@ struct CountryItem {
 open class CountrySelectView: UIView {
   
 	lazy var listOfCountries: [CountryItem] = {
-      return CountryCodeJson.map { item in
-        let path = Bundle(for: CountrySelectView.self).resourcePath! + "/CountryPicker.bundle"
-        let CABundle = Bundle(path: path)!
-        let img = "\(item["locale"] as! String)"
-        let image = UIImage(named: img.lowercased(), in: CABundle, compatibleWith: nil)
-		
+      return countryCodeJson.map { item in
 		return CountryItem(en: item["en"] as! String,
 						   es: item["es"] as! String,
 						   zh: item["zh"] as! String,
 						   locale: item["locale"] as! String,
-						   code: item["code"] as! Int,
-						   image: image)
+						   code: item["code"] as! Int)
       }
     }()
 	
 	var topCountries: [CountryItem] = []
   
     public static let shared = CountrySelectView()
-	public var selectedCountryCallBack : ((String, String, UIImage?)->(Void))!
+	public var selectedCountryCallBack : ((String, String)->(Void))!
   
     fileprivate var countryTableView = UITableView()
     fileprivate var searchCountries : [CountryItem] = []
@@ -146,7 +139,7 @@ open class CountrySelectView: UIView {
 			[1, 86, 505, 506, 504].contains($0.code)
 		}
 		
-		searchCountries = listOfCountries.filter { $0.image != nil }
+		searchCountries = listOfCountries
 		
         let tap = UITapGestureRecognizer()
         tap.addTarget(self, action: #selector(self.dismiss))
@@ -201,7 +194,7 @@ open class CountrySelectView: UIView {
         }
       
         searchBarView.text = ""
-		searchCountries = listOfCountries.filter { $0.image != nil }
+		searchCountries = listOfCountries
         self.countryTableView.reloadData()
         self.setLayout()
     }
@@ -224,7 +217,7 @@ extension searchBarDelegate : UISearchBarDelegate {
 	
     public func searchBar(_ searchBar: UISearchBar, textDidChange searchText: String) {
         if searchText.count == 0 {
-			searchCountries = listOfCountries.filter { $0.image != nil }
+			searchCountries = listOfCountries
             countryTableView.reloadData()
             return
         }
@@ -284,7 +277,7 @@ extension tableViewDelegate : UITableViewDelegate {
 	
     public func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
 		let selected = indexPath.section == 0 ? topCountries[indexPath.row] : searchCountries[indexPath.row]
-		self.selectedCountryCallBack(selected.codeString, selected.es, selected.image)
+		self.selectedCountryCallBack(selected.codeString, selected.es)
         self.dismiss()
     }
 }
