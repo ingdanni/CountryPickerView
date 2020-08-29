@@ -14,29 +14,50 @@ public enum DisplayLanguageType {
     case spanish
 }
 
+struct CountryItem {
+	var en: String
+	var es: String
+	var zh: String
+	var locale: String
+	var code: Int
+	var image: UIImage?
+	
+	var codeString: String {
+		"+ \(code)"
+	}
+}
+
 open class CountrySelectView: UIView {
   
-    lazy var listOfCountries = {
-      return CountryCodeJson.filter { item in
+	lazy var listOfCountries: [CountryItem] = {
+      return CountryCodeJson.map { item in
         let path = Bundle(for: CountrySelectView.self).resourcePath! + "/CountryPicker.bundle"
         let CABundle = Bundle(path: path)!
         let img = "\(item["locale"] as! String)"
         let image = UIImage(named: img.lowercased(), in: CABundle, compatibleWith: nil)
-        return image != nil
+		
+		return CountryItem(en: item["en"] as! String,
+						   es: item["es"] as! String,
+						   zh: item["zh"] as! String,
+						   locale: item["locale"] as! String,
+						   code: item["code"] as! Int,
+						   image: image)
       }
     }()
+	
+	var topCountries: [CountryItem] = []
   
     public static let shared = CountrySelectView()
-    public var selectedCountryCallBack : ((_ countryDic: [String:Any])->(Void))!
+	public var selectedCountryCallBack : ((String, String, UIImage?)->(Void))!
   
     fileprivate var countryTableView = UITableView()
-    fileprivate var searchCountrys : [[String:Any]]!
+    fileprivate var searchCountries : [CountryItem] = []
     fileprivate var searchBarView = UISearchBar()
     fileprivate var regex = ""
     
     fileprivate var _searchBarPlaceholder: String = "Buscar"
   
-    public var searchBarPlaceholder: String{
+    public var searchBarPlaceholder: String {
         get{
             return _searchBarPlaceholder
         }
@@ -108,39 +129,45 @@ open class CountrySelectView: UIView {
   
     fileprivate var _displayLanguage : DisplayLanguageType = .english
   
-    public var displayLanguage:DisplayLanguageType{
-        get{
+    public var displayLanguage: DisplayLanguageType {
+        get {
             return _displayLanguage
         }
-        set{
+        set {
             _displayLanguage = newValue
             countryTableView.reloadData()
         }
     }
     
     convenience init() {
-        self.init(frame: CGRect(x:0,y:0,width:UIScreen.main.bounds.size.width,height:UIScreen.main.bounds.size.height))
-        searchCountrys = listOfCountries
+        self.init(frame: CGRect(x: 0, y: 0, width: UIScreen.main.bounds.size.width, height: UIScreen.main.bounds.size.height))
+		
+		topCountries = listOfCountries.filter {
+			[1, 86, 505, 506, 504].contains($0.code)
+		}
+		
+        searchCountries = listOfCountries
+		
         let tap = UITapGestureRecognizer()
         tap.addTarget(self, action: #selector(self.dismiss))
         tap.delegate = self
         self.addGestureRecognizer(tap)
-        self.backgroundColor = UIColor(red:0.98, green:0.98, blue:0.97, alpha:1.0)
+		self.backgroundColor = .white
         self.addSubview(countryTableView)
       
         countryTableView.delegate = self
         countryTableView.dataSource = self
-        countryTableView.separatorStyle = .none
-        countryTableView.backgroundColor = UIColor(red:0.98, green:0.98, blue:0.97, alpha:1.0)
+		countryTableView.separatorStyle = .singleLine
+		countryTableView.backgroundColor = .white
         
         searchBarView.placeholder = "Buscar"
-        searchBarView.backgroundColor = UIColor(red:0.98, green:0.98, blue:0.97, alpha:1.0)
-        searchBarView.backgroundImage = UIImage(named:"")
-        searchBarView.barTintColor = UIColor(red:0.98, green:0.98, blue:0.97, alpha:1.0)
-        searchBarView.tintColor = UIColor(red:0.98, green:0.98, blue:0.97, alpha:1.0)
+		searchBarView.backgroundColor = .white
+        searchBarView.backgroundImage = UIImage(named: "")
+		searchBarView.barTintColor = .white
+		searchBarView.tintColor = .white
         searchBarView.showsCancelButton = false
         searchBarView.delegate = self
-        searchBarView.frame = CGRect(x:0, y: 0, width: 0.8*self.frame.size.width, height: 50)
+        searchBarView.frame = CGRect(x: 0, y: 0, width: 0.8 * self.frame.size.width, height: 50)
         
         countryTableView.tableHeaderView = searchBarView
         countryTableView.showsVerticalScrollIndicator = false
@@ -174,7 +201,7 @@ open class CountrySelectView: UIView {
         }
       
         searchBarView.text = ""
-        searchCountrys = listOfCountries
+        searchCountries = listOfCountries
         self.countryTableView.reloadData()
         self.setLayout()
     }
@@ -186,35 +213,36 @@ open class CountrySelectView: UIView {
     override init(frame: CGRect) {
         super.init(frame: frame)
     }
+	
     required public init?(coder aDecoder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
     
 }
 private typealias searchBarDelegate = CountrySelectView
-extension searchBarDelegate : UISearchBarDelegate{
+extension searchBarDelegate : UISearchBarDelegate {
+	
     public func searchBar(_ searchBar: UISearchBar, textDidChange searchText: String) {
         if searchText.count == 0 {
-            searchCountrys = listOfCountries
+            searchCountries = listOfCountries
             countryTableView.reloadData()
             return
         }
         
         self.getRegexString(searchString: searchText.lowercased())
-        var results :[[String:Any]] = []
-        for countryDic in listOfCountries {
-            let zh = countryDic["zh"] as! String
-            let en = countryDic["en"] as! String
-            let es = countryDic["es"] as! String
-            let code = "\(countryDic["code"] as! NSNumber)"
-            let locale = countryDic["locale"] as! String
-            if self.checkSearchStringCharHas(compareString: zh.lowercased())||self.checkSearchStringCharHas(compareString: en.lowercased().replacingOccurrences(of: " ", with: ""))||self.checkSearchStringCharHas(compareString: es.lowercased().replacingOccurrences(of: " ", with: ""))||self.checkSearchStringCharHas(compareString: code)||self.checkSearchStringCharHas(compareString: locale.lowercased().replacingOccurrences(of: " ", with: "")){
-                results.append(countryDic)
+		
+        var results : [CountryItem] = []
+		
+        for item in listOfCountries {
+			if self.checkSearchStringCharHas(compareString: item.zh.lowercased()) || self.checkSearchStringCharHas(compareString: item.en.lowercased().replacingOccurrences(of: " ", with: "")) || self.checkSearchStringCharHas(compareString: item.es.lowercased().replacingOccurrences(of: " ", with: "")) || self.checkSearchStringCharHas(compareString: item.code.description) || self.checkSearchStringCharHas(compareString: item.locale.lowercased().replacingOccurrences(of: " ", with: "")) {
+                results.append(item)
             }
         }
-        searchCountrys = results
+		
+        searchCountries = results
         countryTableView.reloadData()
     }
+	
     func getRegexString(searchString: String){
         var str :String = ""
         let count = searchString.count
@@ -228,6 +256,7 @@ extension searchBarDelegate : UISearchBarDelegate{
         }
         regex = "\(str)+[a-z0-9\\u4e00-\\u9fa5]*$"
     }
+	
     func checkSearchStringCharHas(compareString: String) -> Bool{
         let predicate = NSPredicate(format: "SELF MATCHES %@", regex)
         let isValid = predicate.evaluate(with: compareString)
@@ -236,7 +265,9 @@ extension searchBarDelegate : UISearchBarDelegate{
     
 }
 private typealias tapGestureDelegate = CountrySelectView
+
 extension tapGestureDelegate : UIGestureRecognizerDelegate{
+	
     public func gestureRecognizer(_ gestureRecognizer: UIGestureRecognizer, shouldReceive touch: UITouch) -> Bool {
         
         if NSStringFromClass((touch.view?.classForCoder)!).components(separatedBy: ".").last! == "UITableViewCellContentView"{
@@ -246,55 +277,50 @@ extension tapGestureDelegate : UIGestureRecognizerDelegate{
     }
 }
 private typealias tableViewDelegate = CountrySelectView
-extension tableViewDelegate : UITableViewDelegate{
+
+// MARK: UITableView Delegate
+
+extension tableViewDelegate : UITableViewDelegate {
+	
     public func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        var selected = searchCountrys[indexPath.row]
-      
-        let path = Bundle(for: CountrySelectView.self).resourcePath! + "/CountryPicker.bundle"
-        let CABundle = Bundle(path: path)!
-        let img = "\(selected["locale"] as! String)"
-        selected["countryImage"] = UIImage(named: img.lowercased(), in: CABundle, compatibleWith: nil)
-        self.selectedCountryCallBack(selected)
+		let selected = indexPath.section == 0 ? topCountries[indexPath.row] : searchCountries[indexPath.row]
+		self.selectedCountryCallBack(selected.codeString, selected.es, selected.image)
         self.dismiss()
     }
 }
+
 private typealias tableViewDataSource = CountrySelectView
-extension tableViewDataSource : UITableViewDataSource{
+
+// MARK: UITableView DataSource
+
+extension tableViewDataSource : UITableViewDataSource {
+	
+	public func numberOfSections(in tableView: UITableView) -> Int { 2 }
   
     public func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return searchCountrys.count
+		section == 0
+			? (searchBarView.text?.count == 0 ? topCountries.count : 0)
+			: searchCountries.count
     }
   
     public func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-      let indentifier = "CountryTableViewCell"
-
-      var cell:CountryTableViewCell! = tableView.dequeueReusableCell(withIdentifier: indentifier) as? CountryTableViewCell
-
-      if cell == nil {
-          cell = CountryTableViewCell(style: .default, reuseIdentifier: indentifier)
-      }
-    
-      cell.countryNameLabel.text = (searchCountrys[indexPath.row]["es"] as! String)
-      cell.countryNameLabel.font = _countryNameFont
-//      cell.countryNameLabel.textColor = UIColor(red: 0.93, green: 0.41, blue: 0.29, alpha: 1.0)
-    
-      cell.phoneCodeLabel.text = "+ \(searchCountrys[indexPath.row]["code"] as! NSNumber)"
-      cell.phoneCodeLabel.font = _countryPhoneCodeFont
-      cell.phoneCodeLabel.textColor = _countryPhoneCodeColor
-      
-      let path = Bundle(for: CountrySelectView.self).resourcePath! + "/CountryPicker.bundle"
-      let CABundle = Bundle(path: path)!
-      let img = "\(searchCountrys[indexPath.row]["locale"] as! String)"
-      
-      cell.countryImageView!.image = UIImage(named: img.lowercased(), in: CABundle, compatibleWith: nil)
-      cell.countryImageView.layer.cornerRadius = 5
-//      cell.backgroundColor = UIColor(red: 0.98, green: 0.98, blue: 0.97, alpha: 1.0)
 		
-      return cell
+		let indentifier: String = "CountryTableViewCell"
+
+		let cell: CountryTableViewCell! = tableView.dequeueReusableCell(withIdentifier: indentifier) as? CountryTableViewCell ?? CountryTableViewCell(style: .default, reuseIdentifier: indentifier)
+		
+		let item = indexPath.section == 0 ? topCountries[indexPath.row] : searchCountries[indexPath.row]
+    
+		cell.countryNameLabel.text = item.es
+		cell.countryNameLabel.font = _countryNameFont
+
+		cell.phoneCodeLabel.text = item.codeString
+		cell.phoneCodeLabel.font = _countryPhoneCodeFont
+		cell.phoneCodeLabel.textColor = _countryPhoneCodeColor
+		return cell
     }
   
-  public func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
-    return 50
-  }
+	public func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat { 50 }
+	
 }
 
