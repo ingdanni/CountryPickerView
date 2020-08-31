@@ -135,10 +135,6 @@ open class CountrySelectView: UIView {
     convenience init() {
         self.init(frame: CGRect(x: 0, y: 0, width: UIScreen.main.bounds.size.width, height: UIScreen.main.bounds.size.height))
 		
-		topCountries = listOfCountries.filter {
-			[1, 86, 505, 506, 504].contains($0.code)
-		}
-		
 		searchCountries = listOfCountries
 		
         let tap = UITapGestureRecognizer()
@@ -195,6 +191,10 @@ open class CountrySelectView: UIView {
       
         searchBarView.text = ""
 		searchCountries = listOfCountries
+		topCountries = listOfCountries.filter {
+			[1, 86, 505, 506].contains($0.code)
+		}
+		
         self.countryTableView.reloadData()
         self.setLayout()
     }
